@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 
 import CreateJSON from "./CreateJSON";
-import IndexData from "./indexData";
+
 
 function App() {
   
