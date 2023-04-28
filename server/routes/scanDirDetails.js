@@ -12,7 +12,7 @@ const cheerio = require('cheerio');
 const WordExtractor = require("word-extractor"); 
 
 const ExifParser = require('exif-parser');
-
+const ExifReader = require('exifreader');
 var ffmpeg = require('ffmpeg');
 
 
@@ -152,38 +152,41 @@ async function scanDirectory(dirPath, fileNames) {
              
               // this code works as well it is able to extract metadata height and stuff as well as advance things
               try{
-                const imageBuffer = fs.readFileSync(filePath);
+                // const imageBuffer = fs.readFileSync(filePath);
 
-                // Create ExifParser instance and parse image buffer
-                const parser = ExifParser.create(imageBuffer);
-                const result = parser.parse();
-                //console.log(result,'result');
-                let imgtitle="";
-                let imgkeyword="";
-                let subject ="";
-                let imagesize= result?result.imageSize:{};
-                let imageDescription=result?result.tags.imageDescription:"";
-                if(result && result.tags){
-                  if(result.tags.XPTitle){
-                    const titleBuffer = Buffer.from(result.tags.XPTitle);
-                    imgtitle = titleBuffer.toString('utf16le').replace(/[\n\/\\><-]+|\s+/g, ' ');
+                // // Create ExifParser instance and parse image buffer
+                // const parser = ExifParser.create(imageBuffer);
+                // const result = parser.parse();
+                // //console.log(result,'result');
+              
+                const result = await ExifReader.load(filePath);
+                //console.log(result);
+                 let imgtitle="";
+                let imgtags="";
+                let imageWidth= result?result.ImageWidth?result.ImageWidth.value:0:0;
+                let imageLength=result?result.ImageLength?result.ImageLength.value:0:0;
+                let imageDescription="";
+
+                if(result){
+                  if(result.ImageDescription){
+                   
+                    imageDescription =result.ImageDescription.value.toString('utf16le').replace(/[\n\/\\><-]+|\s+/g, ' ');
                   }
 
-                  if(result.tags.XPKeywords){
-                    const keywordBuffer = Buffer.from(result.tags.XPKeywords);
-                    imgkeyword = keywordBuffer.toString('utf16le').replace(/[\n\/\\><-]+|\s+/g, ' ');
+                  if(result.title){
+                   
+                    imgtitle = result.title.description.replace(/[\n\/\\><-]+|\s+/g, ' ');
                   }
-                 if(result.tags.XPSubject){
-                  const subjectBuffer = Buffer.from(result.tags.XPSubject);
-                  subject = subjectBuffer.toString('utf16le').replace(/[\n\/\\><-]+|\s+/g, ' ');
+                 if(result.subject){
+                 
+                  imgtags = result.subject.description.replace(/[\n\/\\><-]+|\s+/g, ' ');
                  }
                  
                  
                  
                 }
 
-                fileNames.push({id:id,title:imgtitle, fileName: fileName, fileType: "image",fileSize:filesize,url:url, fileDetails: imageDescription,imagesize:imagesize,imgkeyword:imgkeyword,subject:subject });
-                
+                 fileNames.push({id:id,title:imgtitle, fileName: fileName, fileType: "image",fileSize:filesize,url:url, fileDetails: imageDescription,imagesize:{imageLength,imageWidth},imgtags:imgtags })
 
               }
 
