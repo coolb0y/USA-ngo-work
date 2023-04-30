@@ -3,10 +3,11 @@ const app = express();
 const morgan = require("morgan");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-
+const mongoose = require("mongoose");
 require("dotenv").config();
 // Used to log everything like GET, POST, etc requests
 app.use(morgan("dev"));
+console.log("process.env.MONGODB_URI", process.env.MONGODB_URI);
 // It ensures that we prevent Cross-Origin Resource Sharing(CORS) errors
 // If client made req on localhost:4000, and received res from server which
 // has localhost:3000 req will fail. It is always the case with RESTful APIs
@@ -17,6 +18,15 @@ app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 // Extracts json data and makes it easy readable to us
 app.use(bodyParser.json());
+mongoose.set("strictQuery", false);
+mongoose
+  .connect("mongodb://127.0.0.1:27017/chipster", {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then((res) => {
+    console.log("connected to database");
+  });
 
 app.use("/", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
@@ -28,7 +38,8 @@ app.use("/", (req, res, next) => {
 });
 // To make uploads folder publically available with '/api/videos' route
 //app.use("/api/videos", express.static("media/uploads/"));
-app.use("/api/scanDir",require("./routes/scanDirDetails"));
+app.use("/api/scanDir",require("./routes/scanLinear"));
+app.use("/api/indexJson",require("./routes/indexJson"));
 // Routes
 
 module.exports = app;

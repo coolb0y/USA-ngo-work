@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const fs = require("fs-extra");
+var gracefulFs = require('graceful-fs')
+gracefulFs.gracefulify(fs)
 const path = require('path');
 let mime = require('mime-types')
 const { convert } = require('html-to-text');
@@ -87,11 +89,13 @@ const options = {
 // Recursive function to scan directory
 async function scanDirectory(dirPath, fileNames) {
     try {
-      const files = await fs.readdir(dirPath);
-      await Promise.all(
+      const files =  fs.readdirSync(dirPath);
+    await Promise.all(
         files.map(async function (file) {
+    
+        console.log(file,'file');
           let filePath = path.join(dirPath, file);
-          let stats = await fs.stat(filePath);
+          let stats = fs.statSync(filePath);
           if (stats.isDirectory()) {
           
            
@@ -122,12 +126,12 @@ async function scanDirectory(dirPath, fileNames) {
              
             } catch (err) {
                 console.log(err);
-              throw new Error(err);
+              
             }
   
             if (filetype === "text/html") {
               try {
-                const html = await fs.readFile(filePath, 'utf-8');
+                const html = fs.readFileSync(filePath, 'utf-8');
                 const $ = cheerio.load(html);
 
                 // Extract the title
@@ -145,7 +149,7 @@ async function scanDirectory(dirPath, fileNames) {
                 
               } catch (err) {
                 console.error('Failed to read HTML file:', err);
-                throw new Error("Failed to read HTML file");
+                
               }
             }
              else if (filetype === "image/jpeg" || filetype === "image/png" || filetype==="image/jpg") {
@@ -158,8 +162,8 @@ async function scanDirectory(dirPath, fileNames) {
                 // const parser = ExifParser.create(imageBuffer);
                 // const result = parser.parse();
                 // //console.log(result,'result');
-              
-                const result = await ExifReader.load(filePath);
+              const imageBuffer = fs.readFileSync(filePath)
+                const result =  ExifReader.load(imageBuffer);
                 //console.log(result);
                  let imgtitle="";
                 let imgtags="";
@@ -192,7 +196,7 @@ async function scanDirectory(dirPath, fileNames) {
 
               catch(e){
                 console.log(e);
-                throw new Error("Failed to read image file");
+                
               }
                 
       
@@ -253,13 +257,13 @@ async function scanDirectory(dirPath, fileNames) {
                   console.log('Error: ' + err);
                 });
               } catch (e) {
-                console.log(e.code);
-                console.log(e.msg);
+                console.log(e);
+               
               }
             }
              else if (filetype === "application/pdf") {
               try{
-                let dataBuffer =await fs.readFile(filePath);
+                let dataBuffer = fs.readFileSync(filePath);
                 const data = await pdf(dataBuffer)
                 let cleanedData = data.text.replace(/[\n\/\\><-]+|\s+/g, ' ');
                 //console.log(cleanedData);
@@ -270,7 +274,7 @@ async function scanDirectory(dirPath, fileNames) {
               }
               catch(e){
                 console.log(e);
-                throw new Error("Failed to read PDF file");
+               
               }
             }
              else if (filetype === "text/plain") {
@@ -289,15 +293,14 @@ async function scanDirectory(dirPath, fileNames) {
 
             catch(e){
               console.log(e);
-              throw new Error("Failed to read text file");
+              
             }
            
             }
              else if (filetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || filetype === "application/msword") {
              
               try{
-                console.log(filetype);
-                console.log(filePath)
+                
                 const extractor = new WordExtractor();
                 const extracted = extractor.extract(filePath);
                 await extracted.then(doc => {
@@ -311,7 +314,7 @@ async function scanDirectory(dirPath, fileNames) {
               }
               catch(e){
                 console.log(e);
-                throw new Error("Failed to read Word file");
+               
               }
              
 
@@ -319,10 +322,10 @@ async function scanDirectory(dirPath, fileNames) {
 
           }
         })
-      );
+    )
     } catch (err) {
       console.error('Failed to read directory:', err);
-      throw new Error("Failed to read directory");
+      
     }
   }
 

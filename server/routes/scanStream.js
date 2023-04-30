@@ -1,5 +1,7 @@
 const router = require("express").Router();
 const fs = require("fs-extra");
+var gracefulFs = require('graceful-fs')
+gracefulFs.gracefulify(fs)
 const path = require('path');
 let mime = require('mime-types')
 const { convert } = require('html-to-text');
@@ -87,11 +89,13 @@ const options = {
 // Recursive function to scan directory
 async function scanDirectory(dirPath, fileNames) {
     try {
-      const files = await fs.readdir(dirPath);
-      await Promise.all(
+      const files =  fs.readdirSync(dirPath);
+    await Promise.all(
         files.map(async function (file) {
+    
+        
           let filePath = path.join(dirPath, file);
-          let stats = await fs.stat(filePath);
+          let stats = fs.statSync(filePath);
           if (stats.isDirectory()) {
           
            
@@ -122,12 +126,12 @@ async function scanDirectory(dirPath, fileNames) {
              
             } catch (err) {
                 console.log(err);
-              throw new Error(err);
+              
             }
   
             if (filetype === "text/html") {
               try {
-                const html = await fs.readFile(filePath, 'utf-8');
+                const html = fs.readFileSync(filePath, 'utf-8');
                 const $ = cheerio.load(html);
 
                 // Extract the title
@@ -141,11 +145,17 @@ async function scanDirectory(dirPath, fileNames) {
                 let cleanedText = text.replace(/[\n\/\\><-]+|\s+/g, ' ');
                
                 //console.log(text);
-                fileNames.push({id:id,title:title, fileName: fileName, fileType: "html",fileSize:filesize,url:url, fileDetails: cleanedText });
+                try{
+                    fileNames.write(JSON.stringify({id:id,title:title, fileName: fileName, fileType: "html",fileSize:filesize,url:url, fileDetails: cleanedText })+'\n');
+                
+                }
+                catch(err){
+                    console.log(err);
+                }
                 
               } catch (err) {
                 console.error('Failed to read HTML file:', err);
-                throw new Error("Failed to read HTML file");
+                
               }
             }
              else if (filetype === "image/jpeg" || filetype === "image/png" || filetype==="image/jpg") {
@@ -158,8 +168,8 @@ async function scanDirectory(dirPath, fileNames) {
                 // const parser = ExifParser.create(imageBuffer);
                 // const result = parser.parse();
                 // //console.log(result,'result');
-              
-                const result = await ExifReader.load(filePath);
+              const imageBuffer = fs.readFileSync(filePath)
+                const result =  ExifReader.load(imageBuffer);
                 //console.log(result);
                  let imgtitle="";
                 let imgtags="";
@@ -185,14 +195,20 @@ async function scanDirectory(dirPath, fileNames) {
                 
                  
                 }
-
-                 fileNames.push({id:id,title:imgtitle, fileName: fileName, fileType: "image",fileSize:filesize,url:url, fileDetails: imageDescription,imagesize:{imageLength,imageWidth},imgtags:imgtags })
+                try{
+                    fileNames.write(JSON.stringify({id:id,title:imgtitle, fileName: fileName, fileType: "image",fileSize:filesize,url:url, fileDetails: imageDescription,imagesize:{imageLength,imageWidth},imgtags:imgtags })+'\n');
+                    //
+                }
+                catch(e){
+                  console.log(e);
+                  
+                }
                  
               }
 
               catch(e){
                 console.log(e);
-                throw new Error("Failed to read image file");
+                
               }
                 
       
@@ -247,30 +263,43 @@ async function scanDirectory(dirPath, fileNames) {
                     audiobitrate=video.metadata.audio.bitrate?video.metadata.audio.bitrate:0;
                     audiosamplerate=video.metadata.audio.sample_rate?video.metadata.audio.sample_rate:0;
 
-                    fileNames.push({id:id,title:title, fileName: fileName,artist:artist,album:album,track:track, fileType: "video",fileSize:filesize,url:url, codec:codec,duration:duration,bitrate:bitrate,resoultion:resoultion,fps:fps,audiocodec:audiocodec,audiochannels:audiochannels,audiobitrate:audiobitrate,audiosamplerate:audiosamplerate });
-                 }
+                    try{
+                        fileNames.write(JSON.stringify({id:id,title:title, fileName: fileName,artist:artist,album:album,track:track, fileType: "video",fileSize:filesize,url:url, codec:codec,duration:duration,bitrate:bitrate,resoultion:resoultion,fps:fps,audiocodec:audiocodec,audiochannels:audiochannels,audiobitrate:audiobitrate,audiosamplerate:audiosamplerate })+'\n');
+                   
+                    }
+                    catch(e){
+                        console.log(e);
+                    }
+                  
+                }
                 }, function (err) {
                   console.log('Error: ' + err);
                 });
               } catch (e) {
-                console.log(e.code);
-                console.log(e.msg);
+                console.log(e);
+               
               }
             }
              else if (filetype === "application/pdf") {
               try{
-                let dataBuffer =await fs.readFile(filePath);
+                let dataBuffer = fs.readFileSync(filePath);
                 const data = await pdf(dataBuffer)
                 let cleanedData = data.text.replace(/[\n\/\\><-]+|\s+/g, ' ');
                 //console.log(cleanedData);
                 let title="No Title Description Exists";
                 //const dataobj ={id:id,title:title, fileName: fileName, filetype: filetype,fileSize:filesize,url:url, fileDetails: cleanedData };
-                fileNames.push({id:id,title:title, fileName: fileName, filetype: "pdf",fileSize:filesize,url:url, fileDetails: cleanedData }); 
+                try{
+                    fileNames.write(JSON.stringify({id:id,title:title, fileName: fileName, filetype: "pdf",fileSize:filesize,url:url, fileDetails: cleanedData })+'\n'); 
             
+                }
+                catch(e){
+                    console.log(e);
+                }
+               
               }
               catch(e){
                 console.log(e);
-                throw new Error("Failed to read PDF file");
+               
               }
             }
              else if (filetype === "text/plain") {
@@ -280,8 +309,16 @@ async function scanDirectory(dirPath, fileNames) {
                 else{
                   let cleanedData = data.replace(/[\n\/\\><-]+|\s+/g, ' ');
                   let title = cleanedData.substring(0, 30);
-                  fileNames.push({id:id,title:title, fileName: fileName, filetype: "text",fileSize:filesize,url:url, fileDetails: cleanedData });
-                 // console.log(data);
+                 
+                 try{
+                    fileNames.write(JSON.stringify({id:id,title:title, fileName: fileName, filetype: "text",fileSize:filesize,url:url, fileDetails: cleanedData })+'\n');
+                    // console.log(data);
+                 }
+                    catch(e){
+                        console.log(e);
+                    }
+                 
+                // stream.write(JSON.stringify({ name: 'John Doe', age: 30 }) + '\n');
                 }
                 
               });  
@@ -289,29 +326,28 @@ async function scanDirectory(dirPath, fileNames) {
 
             catch(e){
               console.log(e);
-              throw new Error("Failed to read text file");
+              
             }
            
             }
              else if (filetype === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" || filetype === "application/msword") {
              
               try{
-                console.log(filetype);
-                console.log(filePath)
+                
                 const extractor = new WordExtractor();
                 const extracted = extractor.extract(filePath);
                 await extracted.then(doc => {
                    
                     let cleanedData = doc.getBody().replace(/[\n\/\\><-]+|\s+/g, ' ');
                     let title = cleanedData.substring(0, 30);
-                    fileNames.push({id:id,title:title, fileName: fileName, filetype: "doc-docx",fileSize:filesize,url:url, fileDetails: cleanedData });
-                   
+                    fileNames.write(JSON.stringify({id:id,title:title, fileName: fileName, filetype: "doc-docx",fileSize:filesize,url:url, fileDetails: cleanedData })+'\n');
+                    //stream.write(JSON.stringify({ name: 'John Doe', age: 30 }) + '\n');
                   })
                   
               }
               catch(e){
                 console.log(e);
-                throw new Error("Failed to read Word file");
+               
               }
              
 
@@ -319,44 +355,60 @@ async function scanDirectory(dirPath, fileNames) {
 
           }
         })
-      );
+    )
     } catch (err) {
       console.error('Failed to read directory:', err);
-      throw new Error("Failed to read directory");
+      
     }
   }
 
 router.get("/", (req, res) => {
-  let dirPath = req.query.dirPath;
 
-  let outputname  = req.query.outputName; 
-  let finaloutput = __dirname+"/../output_json/" + outputname + '.json';
- 
-  let fileNames = [];
+    try{
+        let dirPath = req.query.dirPath;
 
-  scanDirectory(dirPath, fileNames)
-    .then(() => {
-      // Directory scanning completed
-      fs.writeFile(finaloutput, JSON.stringify(fileNames), (err) => {
-        if (err) {
-          console.error("Unable to write file names to JSON file", err);
-         return res.status(500).json({
-            message:"Unable to write file names to JSON file"
-          });
-        } else {
-         
-          return res.status(200).json({
+        let outputname  = req.query.outputName; 
+        let finaloutput = __dirname+"/../output_json/" + outputname + '.json';
+       
+        let fileNames = fs.createWriteStream(finaloutput, {'flag': 'a'})
+      fileNames.write(JSON.stringify({name:"ankur",class:"12"}))
+       scanDirectory(dirPath, fileNames)
+       .then(()=>{
+        return res.status(200).json({
             message:"Directory scanned successfully and file names written to json file"
-          });
-        }
-      });
-    })
-    .catch((err) => {
-      console.error("Unable to scan directory", err);
-      return res.status(500).json({
-        message:"Unable to scan directory"
-      });
-    });
+        })
+       })
+
+    }
+    catch(e){
+        console.log(e);
+        return res.status(500).json({
+            message:"Unable to scan directory"
+        });
+    }
+ 
+    // .then(() => {
+    //   // Directory scanning completed
+    //   fs.writeFile(finaloutput, JSON.stringify(fileNames), (err) => {
+    //     if (err) {
+    //       console.error("Unable to write file names to JSON file", err);
+    //      return res.status(500).json({
+    //         message:"Unable to write file names to JSON file"
+    //       });
+    //     } else {
+         
+    //       return res.status(200).json({
+    //         message:"Directory scanned successfully and file names written to json file"
+    //       });
+    //     }
+    //   });
+    // })
+    // .catch((err) => {
+    //   console.error("Unable to scan directory", err);
+    //   return res.status(500).json({
+    //     message:"Unable to scan directory"
+    //   });
+    // });
 });
 
 module.exports = router;
