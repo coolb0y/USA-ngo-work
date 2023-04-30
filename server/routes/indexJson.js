@@ -18,7 +18,7 @@ router.get('/', (req, res) => {
 
         // Read the contents of the JSON file
         jsonpath = jsonpath.replace(/\\/g, '/');
-        const highWaterMark = 1024 * 1024 * 50; //50mb
+        const highWaterMark = 1024*50 ; //50kb
 
         let jsonData = '';
         const readStream = fs.createReadStream(jsonpath, { highWaterMark, encoding: 'utf-8' });
