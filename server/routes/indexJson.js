@@ -24,25 +24,29 @@ router.get('/', (req, res) => {
         const readStream = fs.createReadStream(jsonpath, { highWaterMark, encoding: 'utf-8' });
 
         readStream.on('data', (chunk) => {
-          jsonData += chunk;
+          console.log(chunk,'chunk')
+          jsonData = chunk;
+          let parsedData = JSON.parse(jsonData);
+          client.index(indexname).addDocuments(parsedData)
+          .then(result =>{ 
+            console.log(result)
+            
+         })
+        .catch(err => {
+           console.error(err);
+         return res.status(500).send({
+         message: 'Error indexing the data'
+        })
+        });
+          
         });
 
         readStream.on('end', () => {
-          const parsedData = JSON.parse(jsonData);
-
-          client.index(indexname).addDocuments(parsedData)
-            .then(result =>{ 
-              console.log(result)
-              return res.status(200).send({
-                  message: 'Indexing has enqued successfully Please wait for few minutes'
-              })
-  })
-  .catch(err => {
-    console.error(err);
-    return res.status(500).send({
-        message: 'Error indexing the data'
-    })
-  });
+        
+          return res.status(200).json({
+            message: 'Indexing has enqued successfully Please wait for few minutes'
+          }); // Send back the parsed JSON data
+         
 });
 
 readStream.on('error', (err) => {
