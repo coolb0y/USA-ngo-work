@@ -38,7 +38,7 @@ app.use("/", (req, res, next) => {
 });
 // To make uploads folder publically available with '/api/videos' route
 //app.use("/api/videos", express.static("media/uploads/"));
-app.use("/api/scanDir",require("./routes/scanLinear"));
+app.use("/api/scanDir",require("./routes/scrapnewmodel"));
 app.use("/api/indexJson",require("./routes/indexMongo"));
 // Routes
 
