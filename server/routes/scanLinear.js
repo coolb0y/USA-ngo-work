@@ -144,7 +144,7 @@ async function scanDirectory(dirPath) {
                       // Extract the title
                       let title = $('title').text().replace(/[\n\/\\><-]+|\s+/g, ' ');
                      if(title===undefined|| title==null || title==""){
-                          title="No Title Description Exists"
+                          title=""
                      }
       
                       
@@ -166,9 +166,9 @@ async function scanDirectory(dirPath) {
                       })
       
                       try{
-                        console.log('hello1');
+                       
                           await data.save();
-                          console.log('hello2');
+                         
                           
                       }
                       catch(err){
@@ -238,9 +238,9 @@ async function scanDirectory(dirPath) {
                       })
       
                       try{
-                        console.log('hello1')
+                       
                           await data.save();
-                          console.log('hello2')
+                        
                           
                       }
                       catch(e){
@@ -278,7 +278,7 @@ async function scanDirectory(dirPath) {
                       var process = new ffmpeg(filePath);
                       process.then(async function (video) {
                         // Video metadata
-                       // console.log(video.metadata);
+                       console.log(video.metadata);
                         // FFmpeg configuration
                        
                         let title="";
@@ -288,7 +288,8 @@ async function scanDirectory(dirPath) {
                         let codec="";
                         let duration=0;
                         let bitrate=0;
-                        let resoultion={};
+                        let length=0;
+                        let width=0;
                        
                         if(video.metadata){
                           title=video.metadata.title?video.metadata.title:"";
@@ -298,7 +299,8 @@ async function scanDirectory(dirPath) {
                           codec=video.metadata.video.codec?video.metadata.video.codec:"";
                           duration=video.metadata.duration.seconds?video.metadata.duration.seconds:0;
                           bitrate=video.metadata.video.bitrate?video.metadata.video.bitrate:0;
-                          resoultion=video.metadata.video.resolution?video.metadata.video.resolution:{};
+                          length=video.metadata.video.resolution?video.metadata.video.resolution.h:0;
+                          width=video.metadata.video.resolution?video.metadata.video.resolution.w:0;
                          
       
                           const data = new Data({
@@ -313,15 +315,16 @@ async function scanDirectory(dirPath) {
                               url:url,
                               codec:codec,
                               duration:duration,
-                              resoultion:resoultion,
+                              length:length,
+                              width:width,
                               baseurl:baseurl,
       
                           });
       
                           try{
-                            console.log('hello1');
+                           
                               await data.save();
-                              console.log('hello2');
+                              
                               
                           }
                           catch(e){
@@ -347,7 +350,7 @@ async function scanDirectory(dirPath) {
                       const data = await pdf(dataBuffer)
                       let cleanedData = data.text.replace(/[\n\/\\><-]+|\s+/g, ' ');
                       //console.log(cleanedData);
-                      let title="No Title Description Exists";
+                      let title="";
                       //const dataobj ={id:id,title:title, fileName: fileName, filetype: filetype,fileSize:filesize,url:url, fileDetails: cleanedData };
                      
                      const datavl = new Data({
@@ -363,9 +366,9 @@ async function scanDirectory(dirPath) {
                      })
       
                      try{
-                      console.log('hello1')
+                     
                       await datavl.save();
-                      console.log('hello2')
+                     
                       
                       }
                       catch(e){
@@ -402,11 +405,11 @@ async function scanDirectory(dirPath) {
                        })
       
                        try{
-                        console.log('hello1')
+                     
                        dataval.save().then((data)=>{
                     
                        }).catch((e)=>console.log(e))
-                        console.log('hello2')
+                       
                         
                       }
                       catch(e){
@@ -451,9 +454,9 @@ async function scanDirectory(dirPath) {
                           })
       
                           try{
-                              console.log('hello1')
+                            
                               await data.save();
-                              console.log('hello2')
+                              
                               
                           }
                           catch(e){

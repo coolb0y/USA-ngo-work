@@ -26,11 +26,11 @@ router.get('/', (req, res) => {
           'artist',
           'album',
       ],
-      filterableAttributes: ['fileType','fileSize','duration','bitrate','width','fps','audioChannels','audioBitrate','audioSamplerate','codec','audioCodec','resolution','imgtags','baseurl'],
+      filterableAttributes: ['fileType','fileSize','duration','width','baseurl'],
       typoTolerance: {
           'minWordSizeForTypos': {
-              'oneTypo': 4,
-              'twoTypos': 8
+              'oneTypo': 5,
+              'twoTypos': 10
           }
       },
       pagination: {
