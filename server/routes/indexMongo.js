@@ -5,17 +5,41 @@ var JSONStream = require('JSONStream');
 const { MeiliSearch } = require('meilisearch');
 
 router.get('/', (req, res) => {
-  const client = new MeiliSearch({
-    host: "http://localhost:7700"
-    // apiKey: "your_master_api_key_here"
-  });
+ 
   try{
     let jsonpath = req.query.jsonpath;
     const indexname = req.query.indexname;
-    
+
+    const client = new MeiliSearch({
+      host: "http://localhost:7700"
+      // apiKey: "your_master_api_key_here"
+    });
     console.log(jsonpath);
     console.log(indexname);
 
+    client.index(indexname).updateSettings({
+    
+      distinctAttribute: 'url',
+      searchableAttributes: [
+          'title',
+          'fileDetails',
+          'artist',
+          'album',
+      ],
+      filterableAttributes: ['fileType','fileSize','duration','bitrate','width','fps','audioChannels','audioBitrate','audioSamplerate','codec','audioCodec','resolution','imgtags','baseurl'],
+      typoTolerance: {
+          'minWordSizeForTypos': {
+              'oneTypo': 4,
+              'twoTypos': 8
+          }
+      },
+      pagination: {
+          maxTotalHits: 500
+      },
+      faceting: {
+          maxValuesPerFacet: 20
+      }
+  })
     jsonpath = jsonpath.replace(/\\/g, '/');
     
     const highWaterMark = 1024 * 50; //50mb
