@@ -160,6 +160,7 @@ async function scanDirectory(dirPath) {
                           fileType: "html",
                           fileSize:filesize,
                           url:url,
+                          
                           fileDetails: cleanedText,
                           baseurl:baseurl,
                       })
@@ -288,11 +289,7 @@ async function scanDirectory(dirPath) {
                         let duration=0;
                         let bitrate=0;
                         let resoultion={};
-                        let fps=0;
-                        let audiocodec="";
-                        let audiochannels=0;
-                        let audiobitrate=0;
-                        let audiosamplerate=0;
+                       
                         if(video.metadata){
                           title=video.metadata.title?video.metadata.title:"";
                           artist=video.metadata.artist?video.metadata.artist:"";
@@ -302,11 +299,7 @@ async function scanDirectory(dirPath) {
                           duration=video.metadata.duration.seconds?video.metadata.duration.seconds:0;
                           bitrate=video.metadata.video.bitrate?video.metadata.video.bitrate:0;
                           resoultion=video.metadata.video.resolution?video.metadata.video.resolution:{};
-                          fps=video.metadata.video.fps?video.metadata.video.fps:0;
-                          audiocodec=video.metadata.audio.codec?video.metadata.audio.codec:"";
-                          audiochannels=video.metadata.audio.channels?video.metadata.audio.channels:0;
-                          audiobitrate=video.metadata.audio.bitrate?video.metadata.audio.bitrate:0;
-                          audiosamplerate=video.metadata.audio.sample_rate?video.metadata.audio.sample_rate:0;
+                         
       
                           const data = new Data({
                             id:id,
@@ -320,13 +313,7 @@ async function scanDirectory(dirPath) {
                               url:url,
                               codec:codec,
                               duration:duration,
-                              bitrate:bitrate,
                               resoultion:resoultion,
-                              fps:fps,
-                              audiocodec:audiocodec,
-                              audiochannels:audiochannels,
-                              audiobitrate:audiobitrate,
-                              audiosamplerate:audiosamplerate,
                               baseurl:baseurl,
       
                           });
