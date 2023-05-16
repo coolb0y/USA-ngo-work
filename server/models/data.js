@@ -27,4 +27,4 @@ const dataSchema = mongoose.Schema({
 });
 dataSchema.index({url: 1 }, { unique: true });
 
-module.exports = mongoose.model('Data', dataSchema);
+module.exports = mongoose.model('lunrtest2', dataSchema);

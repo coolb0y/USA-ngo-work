@@ -19,4 +19,4 @@ const dataSchema = mongoose.Schema({
 });
 dataSchema.index({url: 1 }, { unique: true });
 
-module.exports = mongoose.model('scanlight', dataSchema);
+module.exports = mongoose.model('lunrtest1', dataSchema);

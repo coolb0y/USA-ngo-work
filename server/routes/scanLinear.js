@@ -117,9 +117,9 @@ async function scanDirectory(dirPath) {
                  
                   
                   console.log(filePath,'filepath');
-                  const index = filePath.indexOf('chipster1');
+                  const index = filePath.indexOf('ChipsterWebs');
                   console.log(index,'index');
-                  const hostname = filePath.slice(index + 10).split('\\')[0];
+                  const hostname = filePath.slice(index + 13).split('\\')[0];
                   baseurl = "http://"+hostname;
                  
                   const startIndex = filePath.indexOf(hostname) + hostname.length;

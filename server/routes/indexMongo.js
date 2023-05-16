@@ -25,12 +25,13 @@ router.get('/', (req, res) => {
           'fileDetails',
           'artist',
           'album',
+          
       ],
       filterableAttributes: ['fileType','fileSize','duration','width','baseurl'],
       typoTolerance: {
           'minWordSizeForTypos': {
-              'oneTypo': 5,
-              'twoTypos': 10
+              'oneTypo': 7,
+              'twoTypos': 12
           }
       },
       pagination: {
