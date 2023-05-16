@@ -1,0 +1,29 @@
+.App {
+  text-align: center;
+}
+
+.form-container {
+  width: 300px;
+  margin: 0 auto;
+}
+
+.form-label {
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+}
+
+.form-button {
+  display: block;
+  width: 107%;
+  padding: 10px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+}
