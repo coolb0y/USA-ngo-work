@@ -34,7 +34,7 @@ router.get('/', (req, res) => {
       this.setRef('id');
     });
 
-    parser.on('data', (data) => {
+     parser.on('data', (data) => {
       // Index each document as it is parsed
       try {
         console.log(data)
@@ -42,25 +42,25 @@ router.get('/', (req, res) => {
       } catch (e) {
         console.log(e);
       }
-    });
+     });
 
-    parser.on('error', (err) => {
+     parser.on('error', (err) => {
       console.error(err);
       return res.status(500).send({
         message: 'Error parsing the JSON file'
       });
-    });
+     });
 
-    readStream.pipe(parser);
+     readStream.pipe(parser);
 
-    readStream.on('error', (err) => {
+     readStream.on('error', (err) => {
       console.error(err);
       return res.status(500).send({
         message: 'Error reading the JSON file'
       });
-    });
+     });
 
-    readStream.on('end', () => {
+     readStream.on('end', () => {
       // Perform the search after indexing is complete
       const result = idx.search("love");
       console.log(result, 'result');
