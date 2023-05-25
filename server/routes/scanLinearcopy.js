@@ -14,12 +14,41 @@ const {
 const cheerio = require('cheerio');
 const WordExtractor = require("word-extractor"); 
 
-const ExifParser = require('exif-parser');
 const ExifReader = require('exifreader');
 var ffmpeg = require('ffmpeg');
-const Data = require("../models/data");
+var Data;
 
 // Read Word document
+
+const mongoose = require('mongoose');
+
+const dataSchema = mongoose.Schema({
+        id: { type: String,default:""},
+        title: { type: String },
+        filename:{ type: String},
+        filetype:{ type: String},
+        filesize:{ type: Number },
+        url:{ type: String },
+        filedetails:{ type: String },
+        artist:{ type: String },
+        album:{ type: String },
+        track:{ type: String },
+       
+        duration:{ type: Number},
+        bitrate:{ type: Number},
+        length:{ type: Number },
+        width:{ type: Number },
+       
+       
+       
+       
+        imgtags:{ type: String },
+       
+        baseurl:{ type: String},
+
+});
+dataSchema.index({url: 1 }, { unique: true });
+
 
 
 
@@ -117,6 +146,8 @@ async function scanDirectory(dirPath) {
                  
                   
                   console.log(filePath,'filepath');
+                 // const lastString = filePath.split('\\').pop();
+                  //console.log(lastString,'lastString');
                   const index = filePath.indexOf('ChipsterWebs');
                   console.log(index,'index');
                   const hostname = filePath.slice(index + 13).split('\\')[0];
@@ -493,7 +524,8 @@ async function scanDirectory(dirPath) {
 
 router.get("/", (req, res) => {
   let dirPath = req.query.dirPath;
-
+  const databaseName = req.query.outputName;
+  Data = mongoose.model(databaseName, dataSchema);
   scanDirectory(dirPath)
     .then(() => {
       // Directory scanning completed

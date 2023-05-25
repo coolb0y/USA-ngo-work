@@ -16,7 +16,7 @@ function IndexData() {
     setButtonVal('Submitting...');
     try {
       // Make API call with query parameters
-      const response = await axios.get(`/api/indexJson`, {
+      const response = await axios.get(`/api/indexOpensearch`, {
         params: {
           jsonpath: jsonPath,
           indexname: indexName
@@ -43,7 +43,7 @@ function IndexData() {
       <div className="form-container">
         <form className="form" onSubmit={handleSubmit}>
           <label className="form-label">
-            JSON file Name:
+            JSON file Path:
             <input className="form-input" type="text" value={jsonPath} onChange={(e) => setjsonPath(e.target.value)} />
           </label>
           <label className="form-label">

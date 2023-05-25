@@ -39,8 +39,9 @@ app.use("/", (req, res, next) => {
 // To make uploads folder publically available with '/api/videos' route
 //app.use("/api/videos", express.static("media/uploads/"));
 app.use("/api/scanDir",require("./routes/scanLinearcopy"));
+app.use('/api/indexOpensearch',require('./routes/indexOpensearch'));
+//  this api was created for meilisearch indexing not required as of now
 app.use("/api/indexJson",require("./routes/indexMongo"));
-app.use("/api/indexLucene",require("./routes/indexLucene"));
 // Routes
 
 module.exports = app;
